@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type App struct {
@@ -14,6 +16,7 @@ type App struct {
 func New() *App {
 	app := &App{
 		router: loadRoutes(),
+		rdb:    redis.NewClient(&redis.Options{}),
 	}
 	return app
 }
@@ -23,6 +26,8 @@ func (a *App) Start(ctx context.Context) error {
 		Addr:    ":3000",
 		Handler: a.router,
 	}
+	err := a.rdb.Ping(ctx).Err()
+
 	err := server.ListenAndServe()
 	if err != nil {
 		return fmt.Errorf("Failed to start a server: %w", err)
