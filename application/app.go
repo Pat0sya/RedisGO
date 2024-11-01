@@ -27,8 +27,11 @@ func (a *App) Start(ctx context.Context) error {
 		Handler: a.router,
 	}
 	err := a.rdb.Ping(ctx).Err()
-
-	err := server.ListenAndServe()
+	if err != nil {
+		return fmt.Errorf("failed to connect to redis: %w", err)
+	}
+	fmt.Println("Starting server")
+	err = server.ListenAndServe()
 	if err != nil {
 		return fmt.Errorf("Failed to start a server: %w", err)
 
